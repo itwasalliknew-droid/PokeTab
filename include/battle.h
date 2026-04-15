@@ -1043,6 +1043,7 @@ extern struct FieldTimer gFieldTimers;
 extern u16 gBattleTurnCounter;
 extern enum BattlerId gBattlerAbility;
 extern struct QueuedStatBoost gQueuedStatBoosts[MAX_BATTLERS_COUNT];
+extern u8 gSpeedFluctuations[MAX_BATTLERS_COUNT]; // Custom Random Speed Modifier per battler each turn
 
 extern MainCallback gPreBattleCallback1;
 extern void (*gBattleMainFunc)(void);

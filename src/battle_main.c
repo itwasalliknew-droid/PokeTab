@@ -130,6 +130,8 @@ static void HandleEndTurn_MonFled(void);
 static void HandleEndTurn_FinishBattle(void);
 static u32 Crc32B (const u8 *data, u32 size);
 static u32 GeneratePartyHash(const struct Trainer *trainer, u32 i);
+static void SetSpeedFlux(void); // Custom Random Speed modifier per battler per turn
+static void ClearSpeedFlux(void);
 
 EWRAM_DATA u16 gBattle_BG0_X = 0;
 EWRAM_DATA u16 gBattle_BG0_Y = 0;
@@ -244,6 +246,7 @@ EWRAM_DATA bool8 gLastUsedBallMenuPresent = FALSE;
 EWRAM_DATA u8 gPartyCriticalHits[PARTY_SIZE] = {0};
 EWRAM_DATA static u8 sTriedEvolving = 0;
 EWRAM_DATA u8 gCategoryIconSpriteId = 0;
+EWRAM_DATA u8 gSpeedFluctuations[MAX_BATTLERS_COUNT] = {0}; // Custom Random Speed Modifier Per Turn Per Battler
 
 COMMON_DATA MainCallback gPreBattleCallback1 = NULL;
 COMMON_DATA void (*gBattleMainFunc)(void) = NULL;
@@ -3933,6 +3936,7 @@ static void TryDoEventsBeforeFirstTurn(void)
 
         memset(gQueuedStatBoosts, 0, sizeof(gQueuedStatBoosts));
         SetShellSideArmCategory();
+        SetSpeedFlux();
         SetAiLogicDataForTurn(gAiLogicData); // get assumed abilities, hold effects, etc of all battlers
 
         if (gBattleTypeFlags & BATTLE_TYPE_ARENA)
@@ -4028,6 +4032,7 @@ void BattleTurnPassed(void)
     BattlePutTextOnWindow(gText_EmptyString3, B_WIN_MSG);
     AssignUsableGimmicks();
     SetShellSideArmCategory();
+    SetSpeedFlux();
     SetAiLogicDataForTurn(gAiLogicData); // get assumed abilities, hold effects, etc of all battlers
     gBattleMainFunc = HandleTurnActionSelectionState;
 
@@ -4922,7 +4927,9 @@ s32 GetWhichBattlerFasterOrTies(struct BattleCalcValues *calcValues, bool32 igno
 {
     s32 priority1 = 0, priority2 = 0;
     u32 speedBattler1 = GetBattlerTotalSpeedStat(calcValues->battlerAtk, calcValues->abilities[calcValues->battlerAtk], calcValues->holdEffects[calcValues->battlerAtk]);
+    speedBattler1 += gSpeedFluctuations[calcValues->battlerAtk]; // adds Speed Fluctuations to modify effective turn order, may cause bugs if someone uses this for non turn order purposes, too bad!
     u32 speedBattler2 = GetBattlerTotalSpeedStat(calcValues->battlerDef, calcValues->abilities[calcValues->battlerDef], calcValues->holdEffects[calcValues->battlerDef]);
+    speedBattler2 += gSpeedFluctuations[calcValues->battlerDef];
 
     if (!ignoreChosenMoves)
     {
@@ -5149,6 +5156,7 @@ static void TurnValuesCleanUp(bool8 var0)
     gBattleStruct->tryGrudge = FALSE;
     ClearPursuitValues();
     ClearDamageCalcResults();
+    ClearSpeedFlux();
 }
 
 static void PopulateArrayWithBattlers(u8 *battlers)
@@ -6191,8 +6199,25 @@ bool32 DidPlayerForfeitNormalTrainerBattle(void)
 }
 
 // Wins the battle instantly. Used in the battle debug with LIST_ITEM_INSTANT_WIN
-void BattleDebug_WonBattle(void)
+void BattleDebug_WonBattle(void) 
 {
     gBattleOutcome |= B_OUTCOME_WON;
     gBattleMainFunc = sEndTurnFuncsTable[gBattleOutcome & 0x7F];
+}
+
+
+static void SetSpeedFlux(void)
+{
+    for (enum BattlerId battler = 0; battler < gBattlersCount; battler++)
+    {
+        gSpeedFluctuations[battler] = RandomUniform (RNG_SPEEDFLUX, 0, 39); // sets a random number 0-39 inclusive for every current battlerID, will modify their effective speed for the turn, AI sees
+    }
+}
+
+static void ClearSpeedFlux(void)
+{
+    for (enum BattlerId battler = 0; battler < MAX_BATTLERS_COUNT; battler++) // probably unneccessary to compare to max but its what we set aside
+    {
+        gSpeedFluctuations[battler] = 0;
+    }
 }
