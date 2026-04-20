@@ -7370,15 +7370,64 @@ static inline uq4_12_t GetParentalBondModifier(enum BattlerId battlerAtk)
     return B_PARENTAL_BOND_DMG >= GEN_7 ? UQ_4_12(0.25) : UQ_4_12(0.5);
 }
 
-static inline uq4_12_t GetSameTypeAttackBonusModifier(struct BattleContext *ctx)
+static bool8 IsBattlerEffectivelyMonoType (enum BattlerId battler) // Custom, checks for if battler DOES NOT have multiple types (ignoring type_mystery and type_none)
 {
+    u8 j = ARRAY_COUNT(gBattleMons[0].types); // get size of default .types, want this for loops
+    enum Type types[ARRAY_COUNT(gBattleMons[0].types)]; // sets types length, can't reuse j because it'll create a variable length array in the compile
+    GetBattlerTypes(battler, FALSE, types); // Fills types with a copy of battler's types, not ignoring Tera, now types is more reliable than gBattleMons[battler].types
+
+    u8 k = 0; // have to set this ahead so that it persists through loops
+
+    for (; k < j; k++) //k is already initialized so for loop expects that blank first argument apparently
+    // find first non Mystery and None type position (k) in types[] then breaks
+        {
+        if (types[k] != TYPE_NONE && types[k] != TYPE_MYSTERY)
+            {
+                break;
+            }
+        }
+
+    for (u8 i = k + 1; i < j; i++) // starts at the next position after position k, if k is last type then for loop won't run, good!
+        {
+        if (types[i] != types[k] && types[i] != TYPE_NONE && types[i] != TYPE_MYSTERY) // doesn't equal the first type, None, or Mystery
+            return FALSE;
+        }
+
+    return TRUE;  // we never found conflicting types
+}
+
+
+static inline uq4_12_t GetSameTypeAttackBonusModifier (struct BattleContext *ctx) // Modification of normal STAB formula to punish dual types (x1.3) and only provide Normal, Bug, and Flying type stab if Monotype (x1.3)
+{
+    u8 ifmonotype = IsBattlerEffectivelyMonoType(ctx->battlerAtk); // monotype mon flag
+    uq4_12_t bonus = UQ_4_12 (0); // Dmg Modifier
+    u8 hasadaptability = FALSE;
+    if (ctx->abilityAtk == ABILITY_ADAPTABILITY) hasadaptability = TRUE;  // I personally feel this is easier to read
+
     if (ctx->moveType == TYPE_MYSTERY)
         return UQ_4_12(1.0);
-    else if (gBattleStruct->pledgeMove && IS_BATTLER_OF_TYPE(BATTLE_PARTNER(ctx->battlerAtk), ctx->moveType))
-        return (ctx->abilityAtk == ABILITY_ADAPTABILITY) ? UQ_4_12(2.0) : UQ_4_12(1.5);
-    else if (!IS_BATTLER_OF_TYPE(ctx->battlerAtk, ctx->moveType) || ctx->move == MOVE_STRUGGLE || ctx->move == MOVE_NONE)
-        return UQ_4_12(1.0);
-    return (ctx->abilityAtk == ABILITY_ADAPTABILITY) ? UQ_4_12(2.0) : UQ_4_12(1.5);
+
+    else if (gBattleStruct->pledgeMove && IS_BATTLER_OF_TYPE(BATTLE_PARTNER(ctx->battlerAtk), ctx->moveType)) // if Pledge usage is going to get a bonus, typical check
+        {
+        bonus += (ifmonotype) ? UQ_4_12(0.5) : UQ_4_12(0.3); // personal call, Pledge's autoSTAB is incongruent with variable STAB otherwise
+
+        if (hasadaptability) bonus = uq4_12_multiply(bonus, UQ_4_12(2.0));  // Adaptability doubles bonus, also personal interpretation
+
+        return (bonus + UQ_4_12(1.0)); // Can't apply follow-up benefits to Pledge, its STAB is baked in.
+        // It's worth taking an extra moment to note here that this breaks with my variable STAB pattern if Normal, Bug, or Flying Pledge is introduced, too bad!
+        }
+
+    else if (!IS_BATTLER_OF_TYPE(ctx->battlerAtk, ctx-> moveType) || ctx->move == MOVE_STRUGGLE || ctx->move == MOVE_NONE) // typical null case, awkward being first but I don't want to undo the pattern the initial function used.
+        return UQ_4_12(1.0); // return early if no mon-move type match
+
+    // begin major case
+    if (!ifmonotype && (ctx-> moveType == TYPE_BUG || ctx-> moveType == TYPE_NORMAL ||  ctx-> moveType == TYPE_FLYING)) return UQ_4_12(1.0); // dual types get no bonus on non-elemental moves
+    else if (!ifmonotype) bonus += UQ_4_12(0.3); // dual types using elemental moves get 0.3 bonus, only mono types remain after this
+    else bonus += (ctx -> moveType == TYPE_BUG || ctx-> moveType == TYPE_NORMAL || ctx-> moveType == TYPE_FLYING) ? UQ_4_12(0.3) : UQ_4_12(0.5); // common monotypes get smaller bonus, checking the move instead of the mon's type is cheaper here
+
+    if (hasadaptability) bonus = uq4_12_multiply(bonus, UQ_4_12(2.0)); //Adaptability doubles bonus, personal interpretation
+
+    return (bonus + UQ_4_12(1.0)); //returns as total multiplier
 }
 
 // Utility Umbrella holders take normal damage from what would be rain- and sun-weakened attacks.
