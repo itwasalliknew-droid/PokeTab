@@ -1230,6 +1230,51 @@ STATIC_ASSERT(MAX_DYNAMAX_LEVEL < (1 << 4), PokemonSubstruct3_dynamaxLevel_TooSm
 STATIC_ASSERT(MAX_PER_STAT_IVS < (1 << 5), PokemonSubstruct3_ivs_TooSmall);
 STATIC_ASSERT(NUM_NATURES <= (1 << 5), BoxPokemon_hiddenNatureModifier_TooSmall);
 
+// Custom, Effective Levels by Offense
+const u8 gTabLevelOffense[101] = {
+    0, // Level 0
+    56, 57, 58, 58, 59, 59, 60, 60, 61, 61, // Levels 1-10
+    61, 62, 62, 62, 63, 63, 64, 64, 64, 65, // Levels 11-20
+    65, 65, 66, 66, 67, 68, 68, 69, 69, 70, // Levels 21-30
+    70, 71, 71, 72, 72, 73, 73, 74, 74, 75, // Levels 31-40
+    75, 76, 76, 77, 77, 78, 78, 79, 79, 80, // Levels 41-50
+    80, 81, 81, 81, 82, 82, 82, 83, 83, 84, // Levels 51-60
+    84, 84, 85, 85, 85, 86, 86, 87, 87, 87, // Levels 61-70
+    88, 88, 89, 89, 90, 90, 91, 91, 91, 92, // Levels 71-80
+    92, 92, 93, 93, 94, 94, 94, 95, 95, 96, // Levels 81-90
+    96, 96, 97, 97, 98, 98, 99, 99, 99, 100 // Levels 91-100
+};
+
+// Custom, Effective Levels by Defense
+const u8 gTabLevelDefense[101] = {
+    0, // Level 0
+    56, 56, 57, 57, 58, 58, 59, 59, 59, 60, // Levels 1-10
+    61, 61, 62, 62, 62, 63, 63, 64, 64, 64, // Levels 11-20
+    65, 65, 66, 66, 67, 67, 67, 68, 68, 69, // Levels 21-30
+    69, 69, 70, 70, 71, 71, 72, 72, 73, 74, // Levels 31-40
+    74, 75, 75, 76, 77, 78, 78, 79, 79, 80, // Levels 41-50
+    80, 80, 81, 81, 82, 82, 82, 83, 83, 84, // Levels 51-60
+    84, 84, 85, 85, 85, 86, 86, 86, 87, 87, // Levels 61-70
+    87, 88, 88, 89, 89, 90, 90, 91, 91, 91, // Levels 71-80
+    92, 92, 92, 93, 93, 94, 94, 94, 95, 95, // Levels 81-90
+    95, 96, 97, 97, 97, 98, 98, 98, 99, 100 // Levels 91-100
+};
+
+// Custom, Effective Levels by Speed
+const u8 gTabLevelSpeed[101] = {
+    0, // Level 0
+    56, 56, 56, 57, 57, 57, 58, 59, 59, 59, // Levels 1-10
+    60, 60, 61, 62, 62, 63, 63, 63, 64, 64, // Levels 11-20
+    64, 65, 65, 66, 66, 66, 67, 67, 68, 68, // Levels 21-30
+    69, 69, 69, 70, 70, 71, 71, 72, 72, 73, // Levels 31-40
+    74, 74, 75, 75, 76, 76, 77, 77, 78, 78, // Levels 41-50
+    79, 80, 80, 81, 81, 82, 83, 83, 84, 84, // Levels 51-60
+    85, 86, 86, 87, 88, 88, 89, 89, 89, 90, // Levels 61-70
+    90, 90, 91, 91, 91, 92, 92, 92, 93, 93, // Levels 71-80
+    93, 94, 94, 94, 95, 95, 96, 96, 96, 96, // Levels 81-90
+    97, 97, 97, 98, 98, 98, 98, 99, 99, 100 // Levels 91-100
+};
+
 static u32 CompressStatus(u32 status)
 {
     s32 i;
@@ -1804,6 +1849,10 @@ void CalculateMonStats(struct Pokemon *mon)
     u16 species = GetMonData(mon, MON_DATA_SPECIES);
     u8 friendship = GetMonData(mon, MON_DATA_FRIENDSHIP);
     s32 level = GetLevelFromMonExp(mon);
+    s32 offenselevel = gTabLevelOffense[level]; // Custom: set effective offense level, atk, spa
+    s32 defenselevel = gTabLevelDefense[level]; // Custom: set effective defense level, hp, def, spd
+    s32 speedlevel   = gTabLevelSpeed[level];   // Custom: set effective speed level, spe
+    u32 effectivelevel = 0; // Custom
     s32 newMaxHP;
 
     u8 nature = GetMonData(mon, MON_DATA_HIDDEN_NATURE);
@@ -1832,7 +1881,16 @@ void CalculateMonStats(struct Pokemon *mon)
             continue;
 
         u8 baseStat = GetSpeciesBaseStat(species, i);
-        s32 n = (((2 * baseStat + iv[i] + ev[i] / 4) * level) / 100) + 5;
+
+        // Set effective level to corresponding effective stat level, don't need to set HP, breaks if you weirdos make additional stats, too bad!   
+        if      (i == STAT_ATK || i == STAT_SPATK) effectivelevel = offenselevel;
+        else if (i == STAT_DEF || i == STAT_SPDEF) effectivelevel = defenselevel;
+        else    effectivelevel = speedlevel;
+
+        s32 n =   ( ( ((2 * baseStat + iv[i])*effectivelevel) + ((ev[i] / 4) * gTabLevelOffense[1])  ) / 100) + 5; 
+        // always multiplying against gTablevelOffense[1] is fine, prevents us from having to dynamically call the others when they will always start at the same effective level 
+        //that portion ensures ev's don't scale with level
+
         n = ModifyStatByNature(nature, n, i);
         if (B_FRIENDSHIP_BOOST == TRUE)
             n = n + ((n * 10 * friendship) / (MAX_FRIENDSHIP * 100));
@@ -1850,8 +1908,10 @@ void CalculateMonStats(struct Pokemon *mon)
     }
     else
     {
+        effectivelevel = defenselevel; // Custom
         s32 n = 2 * GetSpeciesBaseHP(species) + iv[STAT_HP];
-        newMaxHP = (((n + ev[STAT_HP] / 4) * level) / 100) + level + 10;
+        newMaxHP = (((n*effectivelevel) + ((ev[STAT_HP] / 4) * gTabLevelOffense[1])) / 100) + effectivelevel + 10;
+        // Custom new formula (only in the newMaxHP section). Also anchors EVs to gTabLevelOffense like the rest of the stat formulas to keep ev impact static
     }
 
     gBattleScripting.levelUpHP = newMaxHP - oldMaxHP;

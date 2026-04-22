@@ -724,6 +724,9 @@ extern const struct SpriteTemplate gBattlerSpriteTemplates[];
 extern const u32 sExpCandyExperienceTable[];
 extern const struct AbilityInfo gAbilitiesInfo[];
 extern const struct NatureInfo gNaturesInfo[];
+extern const u8 gTabLevelOffense[101]; // Custom
+extern const u8 gTabLevelDefense[101];
+extern const u8 gTabLevelSpeed[101];
 
 void ZeroBoxMonData(struct BoxPokemon *boxMon);
 void ZeroMonData(struct Pokemon *mon);

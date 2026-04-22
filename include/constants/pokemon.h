@@ -227,9 +227,10 @@ enum OtIdMethod
 #define MAX_PER_STAT_IVS 31
 #define MAX_IV_MASK 31
 #define USE_RANDOM_IVS (MAX_PER_STAT_IVS + 1)
-#define MAX_PER_STAT_EVS ((P_EV_CAP >= GEN_6) ? 252 : 255)
-#define MAX_TOTAL_EVS 510
+#define MAX_PER_STAT_EVS ((P_EV_CAP >= GEN_6) ? 100 : 100) // Custom: set it to both in case I forget later and mess with a flag
+#define MAX_TOTAL_EVS 180 // Custom
 #define EV_ITEM_RAISE_LIMIT ((I_VITAMIN_EV_CAP >= GEN_8) ? MAX_PER_STAT_EVS : 100)
+// Custom: EV_ITEM_RAISE_LIMIT does not need to be modified as per the max_per_stat_ev's the limit would be 100 regardless, so that's all future proofed against me modifying flags months from now 
 
 // Move category defines.
 enum __attribute__((packed)) DamageCategory

@@ -7346,9 +7346,9 @@ static inline u32 CalcDefenseStat(struct BattleContext *ctx)
 }
 
 // base damage formula before adding any modifiers
-static inline s32 CalculateBaseDamage(u32 power, u32 userFinalAttack, u32 level, u32 targetFinalDefense)
+static inline s32 CalculateBaseDamage(u32 power, u32 userFinalAttack, u32 level, u32 targetFinalDefense) // Custom: modified so that level points at effective Offense level
 {
-    return power * userFinalAttack * (2 * level / 5 + 2) / targetFinalDefense / 50 + 2;
+    return power * userFinalAttack * (2 * gTabLevelOffense[level] / 5 + 2 ) / targetFinalDefense / 50 + 2;
 }
 
 static inline uq4_12_t GetTargetDamageModifier(struct BattleContext *ctx)
