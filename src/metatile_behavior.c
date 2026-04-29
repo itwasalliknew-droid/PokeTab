@@ -137,6 +137,7 @@ static const u8 sTileBitAttributes[NUM_METATILE_BEHAVIORS] =
     [MB_CYCLING_ROAD_PULL_DOWN_GRASS]       = TILE_FLAG_UNUSED | TILE_FLAG_HAS_ENCOUNTERS,
     [MB_FAST_WATER]                         = TILE_FLAG_UNUSED | TILE_FLAG_SURFABLE,
     [MB_CYCLING_ROAD_WATER]                 = TILE_FLAG_UNUSED | TILE_FLAG_SURFABLE,
+    [MB_TALL_GRASS_ALTERNATIVE]             = TILE_FLAG_UNUSED | TILE_FLAG_HAS_ENCOUNTERS, // Custom, to direct to alternative land mons encounter table
 };
 
 bool8 MetatileBehavior_IsATile(u8 metatileBehavior)
@@ -186,7 +187,7 @@ bool8 MetatileBehavior_IsJumpSouth(u8 metatileBehavior)
 
 bool8 MetatileBehavior_IsPokeGrass(u8 metatileBehavior)
 {
-    if (metatileBehavior == MB_TALL_GRASS || metatileBehavior == MB_LONG_GRASS || metatileBehavior == MB_CYCLING_ROAD_PULL_DOWN_GRASS)
+    if (metatileBehavior == MB_TALL_GRASS || metatileBehavior == MB_LONG_GRASS || metatileBehavior == MB_CYCLING_ROAD_PULL_DOWN_GRASS || metatileBehavior == MB_TALL_GRASS_ALTERNATIVE)
         return TRUE;
     else
         return FALSE;
@@ -255,13 +256,13 @@ bool8 MetatileBehavior_IsEscalator(u8 metatileBehavior)
         return FALSE;
 }
 
-bool8 Unref_MetatileBehavior_IsUnused04(u8 metatileBehavior)
-{
-    if (metatileBehavior == MB_UNUSED_04)
-        return TRUE;
-    else
-        return FALSE;
-}
+//bool8 Unref_MetatileBehavior_IsUnused04(u8 metatileBehavior)  - Commenting out since its unused and I want to see if this rectifies an issue.
+//{
+//    if (metatileBehavior == MB_TALL_GRASS_ALTERNATIVE)
+//        return TRUE;
+//    else
+//        return FALSE;
+//}
 
 bool8 MetatileBehavior_IsLadder(u8 metatileBehavior)
 {
@@ -745,7 +746,7 @@ bool8 MetatileBehavior_IsPuddle(u8 metatileBehavior)
 
 bool8 MetatileBehavior_IsTallGrass(u8 metatileBehavior)
 {
-    if (metatileBehavior == MB_TALL_GRASS || metatileBehavior == MB_CYCLING_ROAD_PULL_DOWN_GRASS)
+    if (metatileBehavior == MB_TALL_GRASS || metatileBehavior == MB_CYCLING_ROAD_PULL_DOWN_GRASS || metatileBehavior == MB_TALL_GRASS_ALTERNATIVE)
         return TRUE;
     else
         return FALSE;
@@ -1308,6 +1309,7 @@ bool8 MetatileBehavior_IsRunningDisallowed(u8 metatileBehavior)
 bool8 MetatileBehavior_IsCuttableGrass(u8 metatileBehavior)
 {
     if (metatileBehavior == MB_TALL_GRASS
+     || metatileBehavior == MB_TALL_GRASS_ALTERNATIVE
      || metatileBehavior == MB_LONG_GRASS
      || metatileBehavior == MB_ASHGRASS
      || metatileBehavior == MB_LONG_GRASS_SOUTH_EDGE)

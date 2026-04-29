@@ -243,6 +243,7 @@ enum RandomTag
     RNG_FISHING_GEN3_STICKY,
     RNG_WILD_MON_TARGET,
     RNG_SPEEDFLUX,
+    RNG_LOCAL_WILD_MON_AREA,
 };
 
 #define RandomWeighted(tag, ...) \

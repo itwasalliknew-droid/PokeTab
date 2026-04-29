@@ -1698,30 +1698,35 @@ static void CreateNoDataIcon(s16 x, s16 y)
     CreateSprite(&sNoDataIconTemplate, x, y, 0);
 }
 
+// Custom, now the all lands mons check will include anything on the alt table
 static bool8 CapturedAllLandMons(u32 headerId)
 {
-    u16 i, species;
+    u8 i;
+    u16 j, species;
     int count = 0;
+
+    const struct WildPokemonInfo *infotables[2]; // collect both of the info tables into one struct
+
     enum TimeOfDay timeOfDay = GetTimeOfDayForEncounters(headerId, WILD_AREA_LAND);
+	infotables[0] = gWildMonHeaders[headerId].encounterTypes[timeOfDay].landMonsInfo; // land is first
+	timeOfDay = GetTimeOfDayForEncounters(headerId, WILD_AREA_LAND_ALT); // recheck
+	infotables[1] = gWildMonHeaders[headerId].encounterTypes[timeOfDay].landAltMonsInfo; // alt land is second
 
-    const struct WildPokemonInfo *landMonsInfo = gWildMonHeaders[headerId].encounterTypes[timeOfDay].landMonsInfo;
-
-    if (landMonsInfo != NULL)
+    if (infotables[0] != NULL || infotables[1] != NULL)
     {
-        for (i = 0; i < LAND_WILD_COUNT; ++i)
-        {
-            species = landMonsInfo->wildPokemon[i].species;
-            if (species != SPECIES_NONE)
-            {
-                if (!GetSetPokedexFlag(SpeciesToNationalPokedexNum(species), FLAG_GET_CAUGHT))
-                    break;
+    	for (i = 0; i < 2; i++) // loop through info tables, infotables was set to 2
+    		if (infotables[i] != NULL)
+    			for (j = 0; j < 12; ++j) // Land and Alt Land both have 12 slots if they are not Null, this will error if this is ever changed
+    			{
+    				species = infotables[i]->wildPokemon[j].species;
+    				if (species !=SPECIES_NONE)
+    					{
+    						if (!GetSetPokedexFlag(SpeciesToNationalPokedexNum(species), FLAG_GET_CAUGHT)) return FALSE;
 
-                count++;
-            }
-        }
-
-        if (i >= LAND_WILD_COUNT && count > 0) //All land mons caught
-            return TRUE;
+                			count++; // count should keep in line with j if we've caught every mon checked
+    					}
+    			}
+    		if (i >= 2 && count > 0) return TRUE; // Might be redundant
     }
     else
     {
