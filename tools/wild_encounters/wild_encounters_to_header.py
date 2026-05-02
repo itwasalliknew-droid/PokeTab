@@ -127,8 +127,8 @@ class WildEncounterAssembler:
             species = mon["species"]
             min_level = 2 if "min_level" not in mon else mon["min_level"]
             max_level = 100 if "max_level" not in mon else mon["max_level"]
-            self.WriteLine(f"{{ {min_level}, {max_level}, {species} }},", 1)
-
+            override = mon.get("moveOverride","MOVE_NONE")
+            self.WriteLine(f"{{ {min_level}, {max_level}, {species}, {override} }},", 1)
         self.WriteLine("};")
         self.WriteLine()
         self.WriteLine(f"const struct WildPokemonInfo {info_name} = {{ {encounter_rate}, {name} }};")

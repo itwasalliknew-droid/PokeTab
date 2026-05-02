@@ -511,12 +511,58 @@ static u8 PickWildMonNature(u32 species)
     return GetSynchronizedNature(WILDMON_ORIGIN, species);
 }
 
-void CreateWildMon(u16 species, u8 level)
+// Custom
+void TryApplyMoveOverride(struct Pokemon *mon, u16 moveOverride)
+{
+    u8 moveMask = 0;
+    u8 i = 0;
+    u8 count = 0; // count of moves mon currently has
+
+    for (i = 0; i < MAX_MON_MOVES; i++) // Sets moveMask, Method would need to be adjusted if MAX_MON_MOVES was increased past 8, too bad!
+    {
+        if (GetMonData(mon, MON_DATA_MOVE1 +i) != MOVE_NONE)
+            {
+                moveMask |= (1 << i); // Mask will read ######## where each # is 1 if there is a move there, 0 if not
+                count++; 
+            }
+    }   
+
+    // If mon has 3 or 4 moves, we aim to override a random current move
+    if (count > 2) 
+    {
+        u8 moverand = RandomUniformDefault(RNG_MOVE_OVERRRIDE,1,count); // Which move we're going to count to to override
+            
+        for (i = 0; i < MAX_MON_MOVES; i++)
+        {
+            if (moveMask & (1 << i)) moverand--; //random number decreases everytime we find a move, so we pick the nth move even if there are gaps
+            if (moverand == 0) 
+            {
+                SetMonMoveSlot(mon, moveOverride, i); //convert nth move to moveOverride
+                return;
+            }    
+        }
+    }
+    else // 0, 1, or 2 moves convert first MOVE_NONE slot to moveOverride
+    {  
+        for (i = 0; i < MAX_MON_MOVES; i++)
+        {
+            if (!(moveMask & (1 << i))) 
+            {
+                SetMonMoveSlot(mon, moveOverride, i); // Override i + 1 (Move position) with moveOverride
+                return;
+            }
+        }
+    }
+}
+
+
+void CreateWildMon(u16 species, u8 level, u16 moveOverride)
 {
     ZeroEnemyPartyMons();
     u32 personality = GetMonPersonality(species, GetSynchronizedGender(WILDMON_ORIGIN, species), PickWildMonNature(species), RANDOM_UNOWN_LETTER);
     CreateMonWithIVs(&gEnemyParty[0], species, level, personality, OTID_STRUCT_PLAYER_ID, USE_RANDOM_IVS);
     GiveMonInitialMoveset(&gEnemyParty[0]);
+    if (moveOverride) TryApplyMoveOverride(&gEnemyParty[0], moveOverride); //example MOVE_EARTHQUAKE
 }
 
 #ifdef BUGFIX
@@ -595,7 +641,7 @@ static bool8 TryGenerateWildMon(const struct WildPokemonInfo *wildMonInfo, enum 
     if (gMapHeader.mapLayoutId != LAYOUT_BATTLE_FRONTIER_BATTLE_PIKE_ROOM_WILD_MONS && flags & WILD_CHECK_KEEN_EYE && !IsAbilityAllowingEncounter(level))
         return FALSE;
 
-    CreateWildMon(wildMonInfo->wildPokemon[wildMonIndex].species, level);
+    CreateWildMon(wildMonInfo->wildPokemon[wildMonIndex].species, level,wildMonInfo->wildPokemon[wildMonIndex].moveOverride);
     return TRUE;
 }
 
@@ -606,7 +652,7 @@ static u16 GenerateFishingWildMon(const struct WildPokemonInfo *wildMonInfo, u8 
     u8 level = ChooseWildMonLevel(wildMonInfo->wildPokemon, wildMonIndex, WILD_AREA_FISHING);
 
     UpdateChainFishingStreak();
-    CreateWildMon(wildMonSpecies, level);
+    CreateWildMon(wildMonSpecies, level, wildMonInfo->wildPokemon[wildMonIndex].moveOverride);
     return wildMonSpecies;
 }
 
@@ -617,7 +663,7 @@ static bool8 SetUpMassOutbreakEncounter(u8 flags)
     if (flags & WILD_CHECK_REPEL && !IsWildLevelAllowedByRepel(gSaveBlock1Ptr->outbreakPokemonLevel))
         return FALSE;
 
-    CreateWildMon(gSaveBlock1Ptr->outbreakPokemonSpecies, gSaveBlock1Ptr->outbreakPokemonLevel);
+    CreateWildMon(gSaveBlock1Ptr->outbreakPokemonSpecies, gSaveBlock1Ptr->outbreakPokemonLevel, MOVE_NONE); // Custom, Outbreaks are incongruent with moveOverride
     for (i = 0; i < MAX_MON_MOVES; i++)
         SetMonMoveSlot(&gEnemyParty[0], gSaveBlock1Ptr->outbreakPokemonMoves[i], i);
 
@@ -1034,7 +1080,7 @@ void FishingWildEncounter(u8 rod)
         u8 level = ChooseWildMonLevel(&sWildFeebas, 0, WILD_AREA_FISHING);
 
         species = sWildFeebas.species;
-        CreateWildMon(species, level);
+        CreateWildMon(species, level, MOVE_MIRROR_COAT); //Custom, enjoy the move buddy, assuming I ever implement Feebas tiles
     }
     else
     {

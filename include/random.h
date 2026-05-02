@@ -244,6 +244,7 @@ enum RandomTag
     RNG_WILD_MON_TARGET,
     RNG_SPEEDFLUX,
     RNG_LOCAL_WILD_MON_AREA,
+    RNG_MOVE_OVERRRIDE,
 };
 
 #define RandomWeighted(tag, ...) \
