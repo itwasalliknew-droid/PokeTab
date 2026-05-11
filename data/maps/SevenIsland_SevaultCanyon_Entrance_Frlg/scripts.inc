@@ -18,19 +18,6 @@ SevenIsland_SevaultCanyon_Entrance_Text_MiahPostBattle::
 	.string "I don't act the way I look?\p"
 	.string "Heh, that's a part of my strategy!$"
 
-SevenIsland_SevaultCanyon_Entrance_Text_MasonIntro::
-	.string "Howdy!\n"
-	.string "Are you a member of my fan club?$"
-
-SevenIsland_SevaultCanyon_Entrance_Text_MasonDefeat::
-	.string "Oh, so you're not a fan…\p"
-	.string "Well, I can change that.\n"
-	.string "Let me sing for you!$"
-
-SevenIsland_SevaultCanyon_Entrance_Text_MasonPostBattle::
-	.string "Lalalah…\n"
-	.string "My POKéMON, I send them out,\l"
-	.string "all the girls scream and shout!$"
 
 SevenIsland_SevaultCanyon_Entrance_Text_NicolasIntro::
 	.string "This island is too spread out…\n"

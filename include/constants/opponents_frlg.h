@@ -474,7 +474,7 @@
 #define TRAINER_PSYCHIC_RODETTE                    468
 #define TRAINER_AROMA_LADY_MIAH                    469
 #define TRAINER_YOUNG_COUPLE_EVE_JON               470
-#define TRAINER_JUGGLER_MASON                      471
+#define TRAINER_CAMPER_ARTER                       471  // Custom: Juggler_Mason sacrificed, Arter in Route 1 House
 #define TRAINER_CRUSH_GIRL_CYNDY                   472
 #define TRAINER_CRUSH_GIRL_JOCELYN                 473
 #define TRAINER_TAMER_EVAN                         474
@@ -603,7 +603,7 @@
 #define TRAINER_POKEMANIAC_HECTOR_2                597
 #define TRAINER_PSYCHIC_DARIO_2                    598
 #define TRAINER_PSYCHIC_RODETTE_2                  599
-#define TRAINER_JUGGLER_MASON_2                    600
+#define TRAINER_CAMPER_ARTER_2                     600  // Custom: Adding the rematch because there seems to be a dependency, I don't plan on keeping it.
 #define TRAINER_PKMN_RANGER_NICOLAS_2              601
 #define TRAINER_PKMN_RANGER_MADELINE_2             602
 #define TRAINER_CRUSH_GIRL_CYNDY_2                 603

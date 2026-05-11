@@ -62,3 +62,25 @@ Route1_Text_RouteSign::
 	.string "ROUTE 1\n"
 	.string "PALLET TOWN - VIRIDIAN CITY$"
 
+Route1_EventScript_IsLocked_Pushback::
+	goto_if_unset VAR_ROUTE1_HOUSE_BACKDOOR_LOCK, Route1_EventScript_IsLocked_Pushback_2
+Route1_EventScript_IsLocked_Pushback_1:
+	releaseall
+	return
+
+Route1_EventScript_IsLocked_Pushback_2:
+	lockall
+	faceplayer
+	msgbox Route1_EventScript_IsLocked_Pushback_Text_0, MSGBOX_AUTOCLOSE
+	applymovement OBJ_EVENT_ID_PLAYER, Route1_EventScript_IsLocked_Pushback_Movement_0
+	waitmovement 0
+	goto Route1_EventScript_IsLocked_Pushback_1
+
+
+Route1_EventScript_IsLocked_Pushback_Movement_0:
+	walk_up
+	face_right
+	step_end
+
+Route1_EventScript_IsLocked_Pushback_Text_0:
+	.string "The door is locked.$"

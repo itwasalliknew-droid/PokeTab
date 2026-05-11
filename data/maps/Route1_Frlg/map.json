@@ -55,17 +55,33 @@
       "flag": "0"
     }
   ],
-  "warp_events": [],
-  "coord_events": [],
-  "bg_events": [
+  "warp_events": [
     {
-      "type": "sign",
-      "x": 11,
-      "y": 28,
+      "x": 7,
+      "y": 13,
       "elevation": 0,
-      "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
-      "script": "Route1_EventScript_RouteSign"
+      "dest_map": "MAP_ROUTE1_HOUSE_FRLG",
+      "dest_warp_id": "0"
+    },
+    {
+      "x": 10,
+      "y": 11,
+      "elevation": 0,
+      "dest_map": "MAP_ROUTE1_HOUSE_FRLG",
+      "dest_warp_id": "1"
     }
   ],
+  "coord_events": [
+    {
+      "type": "trigger",
+      "x": 10,
+      "y": 11,
+      "elevation": 0,
+      "var": "VAR_ROUTE1_HOUSE_BACKDOOR_LOCK",
+      "var_value": "0",
+      "script": "Route1_EventScript_IsLocked_Pushback"
+    }
+  ],
+  "bg_events": [],
   "region": "REGION_KANTO"
 }

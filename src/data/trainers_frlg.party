@@ -10418,46 +10418,22 @@ Psyduck
 Level: 50
 IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 
-=== TRAINER_JUGGLER_MASON ===
-Name: MASON
-Class: Juggler Frlg
-Pic: Juggler Frlg
+=== TRAINER_CAMPER_ARTER ===
+Name: ARTER
+Class: Camper Frlg
+Pic: Camper Frlg
 Gender: Male
-Music: Hiker
+Music: Male
 Double Battle: No
 AI: Check Bad Move
 
-Voltorb
-Level: 47
-IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
-- Swift
-- Light Screen
-- Spark
-- Sonic Boom
+Metapod
+Level: 20
+IVs: 14 HP / 0 Atk / 14 Def / 0 SpA / 14 SpD / 0 Spe
 
-Pineco
-Level: 47
-IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
-- Spikes
-- Bide
-- Rapid Spin
-- Take Down
-
-Voltorb
-Level: 47
-IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
-- Swift
-- Light Screen
-- Spark
-- Sonic Boom
-
-Pineco
-Level: 47
-IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
-- Spikes
-- Bide
-- Rapid Spin
-- Explosion
+Mime Jr
+Level: 22
+IVs: 0 HP / 14 Atk / 0 Def / 14 SpA / 0 SpD / 14 Spe
 
 === TRAINER_CRUSH_GIRL_CYNDY ===
 Name: CYNDY
@@ -12979,30 +12955,22 @@ IVs: 26 HP / 26 Atk / 26 Def / 26 SpA / 26 SpD / 26 Spe
 - Psych Up
 - Future Sight
 
-=== TRAINER_JUGGLER_MASON_2 ===
-Name: MASON
-Class: Juggler Frlg
-Pic: Juggler Frlg
+=== TRAINER_CAMPER_ARTER_2 ===
+Name: ARTER
+Class: Camper Frlg
+Pic: Camper Frlg
 Gender: Male
-Music: Hiker
+Music: Male
 Double Battle: No
 AI: Check Bad Move
 
-Electrode
-Level: 52
-IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
+Metapod
+Level: 20
+IVs: 14 HP / 0 Atk / 14 Def / 0 SpA / 14 SpD / 0 Spe
 
-Pineco
-Level: 52
-IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
-
-Electrode
-Level: 52
-IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
-
-Pineco
-Level: 52
-IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
+Mime Jr
+Level: 22
+IVs: 0 HP / 14 Atk / 0 Def / 14 SpA / 0 SpD / 14 Spe
 
 === TRAINER_PKMN_RANGER_NICOLAS_2 ===
 Name: NICOLAS
@@ -13787,3 +13755,4 @@ IVs: 6 HP / 6 Atk / 6 Def / 6 SpA / 6 SpD / 6 Spe
 Muk
 Level: 39
 IVs: 6 HP / 6 Atk / 6 Def / 6 SpA / 6 SpD / 6 Spe
+
